@@ -1,0 +1,15 @@
+com\freightfox\repository\LaneRepository.class
+com\freightfox\repository\AssignmentRepository.class
+com\freightfox\repository\CostMatrixRepository.class
+com\freightfox\service\AssignmentService.class
+com\freightfox\controller\AssignmentController.class
+com\freightfox\model\Transporter.class
+com\freightfox\model\Lane.class
+com\freightfox\algorithm\GreedyAssignmentAlgorithm.class
+com\freightfox\loader\CsvDataLoader.class
+com\freightfox\dto\TransporterSummary.class
+com\freightfox\dto\AssignmentResponse.class
+com\freightfox\FreightFoxApplication.class
+com\freightfox\model\Assignment.class
+com\freightfox\model\CostMatrix.class
+com\freightfox\repository\TransporterRepository.class
