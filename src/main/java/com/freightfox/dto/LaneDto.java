@@ -1,9 +1,11 @@
 package com.freightfox.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public class LaneDto {
+
     @NotNull(message = "Lane id is required")
     private Long id;
 

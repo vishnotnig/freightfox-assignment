@@ -3,10 +3,13 @@ package com.freightfox.dto;
 import java.util.List;
 
 public class AssignmentResponse {
+
     private String status;
     private int totalCost;
     private List<AssignmentResult> assignments;
     private List<Long> selectedTransporters;
+
+    public AssignmentResponse() {}
 
     public AssignmentResponse(String status, int totalCost, List<AssignmentResult> assignments, List<Long> selectedTransporters) {
         this.status = status;

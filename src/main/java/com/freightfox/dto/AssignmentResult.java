@@ -1,8 +1,11 @@
 package com.freightfox.dto;
 
 public class AssignmentResult {
+
     private Long laneId;
     private Long transporterId;
+
+    public AssignmentResult() {}
 
     public AssignmentResult(Long laneId, Long transporterId) {
         this.laneId = laneId;

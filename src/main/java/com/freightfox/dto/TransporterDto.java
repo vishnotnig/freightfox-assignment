@@ -8,6 +8,7 @@ import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
 public class TransporterDto {
+
     @NotNull(message = "Transporter id is required")
     private Long id;
 
