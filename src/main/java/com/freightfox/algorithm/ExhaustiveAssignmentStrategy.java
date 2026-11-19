@@ -46,7 +46,7 @@ public class ExhaustiveAssignmentStrategy implements AssignmentStrategy {
 
         int remainingSlots = maxTransporters - forced.size();
 
-        int[] bestCost = {Integer.MAX_VALUE};
+        long[] bestCost = {Long.MAX_VALUE};
         Map<Long, Long>[] bestAssignment = new Map[]{null};
         Set<Long>[] bestSelected = new Set[]{null};
 
@@ -66,23 +66,17 @@ public class ExhaustiveAssignmentStrategy implements AssignmentStrategy {
                                 int slotsLeft,
                                 Set<Long> laneIds,
                                 Map<Long, Map<Long, Integer>> quotes,
-                                int[] bestCost,
+                                long[] bestCost,
                                 Map<Long, Long>[] bestAssignment,
                                 Set<Long>[] bestSelected) {
 
-        int[] eval = evaluate(chosen, laneIds, quotes);
+        long[] eval = evaluate(chosen, laneIds, quotes);
         boolean allCovered = eval[1] == 1;
 
-        if (allCovered) {
-            int cost = eval[0];
-            boolean better = cost < bestCost[0]
-                    || (cost == bestCost[0] && bestSelected[0] != null
-                        && chosen.size() > bestSelected[0].size()); // tie-break: more transporters
-            if (better) {
-                bestCost[0] = cost;
-                bestAssignment[0] = buildAssignment(chosen, laneIds, quotes);
-                bestSelected[0] = new HashSet<>(chosen);
-            }
+        if (allCovered && eval[0] < bestCost[0]) {
+            bestCost[0] = eval[0];
+            bestAssignment[0] = buildAssignment(chosen, laneIds, quotes);
+            bestSelected[0] = new HashSet<>(chosen);
             // NO return — supersets may be cheaper
         }
 
@@ -123,9 +117,9 @@ public class ExhaustiveAssignmentStrategy implements AssignmentStrategy {
         return total;
     }
 
-    private int[] evaluate(List<Long> chosen, Set<Long> laneIds,
-                           Map<Long, Map<Long, Integer>> quotes) {
-        int cost = 0;
+    private long[] evaluate(List<Long> chosen, Set<Long> laneIds,
+                            Map<Long, Map<Long, Integer>> quotes) {
+        long cost = 0;
         boolean allCovered = true;
         for (Long laneId : laneIds) {
             int cheapest = Integer.MAX_VALUE;
@@ -136,7 +130,7 @@ public class ExhaustiveAssignmentStrategy implements AssignmentStrategy {
             if (cheapest == Integer.MAX_VALUE) allCovered = false;
             else cost += cheapest;
         }
-        return new int[]{cost, allCovered ? 1 : 0};
+        return new long[]{cost, allCovered ? 1 : 0};
     }
 
     private Map<Long, Long> buildAssignment(List<Long> chosen, Set<Long> laneIds,

@@ -2,6 +2,7 @@ package com.freightfox.controller;
 
 import com.freightfox.dto.AssignmentRequest;
 import com.freightfox.dto.AssignmentResponse;
+import com.freightfox.dto.InputResponse;
 import com.freightfox.dto.InputRequest;
 import com.freightfox.service.AssignmentService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,9 +26,9 @@ public class AssignmentController {
 
     @Operation(summary = "Submit input data", description = "Submit lanes and transporter quotes to be stored for optimization")
     @PostMapping("/input")
-    public ResponseEntity<Map<String, String>> input(@Valid @RequestBody InputRequest request) {
+    public ResponseEntity<InputResponse> input(@Valid @RequestBody InputRequest request) {
         assignmentService.saveInput(request);
-        return ResponseEntity.ok(Map.of("status", "success", "message", "Input data saved successfully."));
+        return ResponseEntity.ok(new InputResponse("success", "Input data saved successfully."));
     }
 
     @Operation(summary = "Get optimized assignments", description = "Returns optimal transporter-to-lane assignments minimizing total cost within the given transporter limit")

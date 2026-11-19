@@ -2,6 +2,7 @@ package com.freightfox.service;
 
 import com.freightfox.algorithm.AssignmentStrategy;
 import com.freightfox.dto.*;
+import com.freightfox.exception.BadRequestException;
 import com.freightfox.model.CostMatrix;
 import com.freightfox.model.Lane;
 import com.freightfox.model.Transporter;
@@ -34,6 +35,28 @@ public class AssignmentService {
 
     @Transactional
     public void saveInput(InputRequest request) {
+        // Validate duplicate lane IDs
+        Set<Long> laneIds = new HashSet<>();
+        for (LaneDto ld : request.getLanes()) {
+            if (!laneIds.add(ld.getId()))
+                throw new BadRequestException("Duplicate lane id: " + ld.getId());
+        }
+
+        // Validate duplicate transporter IDs
+        Set<Long> transporterIds = new HashSet<>();
+        for (TransporterDto td : request.getTransporters()) {
+            if (!transporterIds.add(td.getId()))
+                throw new BadRequestException("Duplicate transporter id: " + td.getId());
+
+            // Validate duplicate laneIds within a transporter's quotes
+            Set<Long> quotedLanes = new HashSet<>();
+            for (LaneQuoteDto lq : td.getLaneQuotes()) {
+                if (!quotedLanes.add(lq.getLaneId()))
+                    throw new BadRequestException("Transporter " + td.getId()
+                            + " has duplicate quote for lane " + lq.getLaneId());
+            }
+        }
+
         costMatrixRepository.deleteAll();
         laneRepository.deleteAll();
         transporterRepository.deleteAll();
@@ -54,7 +77,7 @@ public class AssignmentService {
 
             for (LaneQuoteDto lq : td.getLaneQuotes()) {
                 Lane lane = laneRepository.findById(lq.getLaneId())
-                        .orElseThrow(() -> new RuntimeException("Lane not found: " + lq.getLaneId()));
+                        .orElseThrow(() -> new BadRequestException("Lane not found: " + lq.getLaneId()));
                 CostMatrix cm = new CostMatrix();
                 cm.setLane(lane);
                 cm.setTransporter(transporter);
@@ -68,13 +91,13 @@ public class AssignmentService {
         List<Lane> lanes = laneRepository.findAll();
         if (lanes.isEmpty())
             throw new IllegalStateException("No input data found. Call POST /api/v1/transporters/input first.");
+
         List<Transporter> transporters = transporterRepository.findAll();
         List<CostMatrix> allQuotes = costMatrixRepository.findAll();
 
         Set<Long> laneIds = lanes.stream().map(Lane::getId).collect(Collectors.toSet());
         List<Long> transporterIds = transporters.stream().map(Transporter::getId).collect(Collectors.toList());
 
-        // Build quote map: transporterId -> { laneId -> cost }
         Map<Long, Map<Long, Integer>> quotes = new HashMap<>();
         for (CostMatrix cm : allQuotes) {
             quotes.computeIfAbsent(cm.getTransporter().getId(), k -> new HashMap<>())
@@ -82,9 +105,6 @@ public class AssignmentService {
         }
 
         AssignmentStrategy.Result result = assignmentStrategy.solve(laneIds, transporterIds, quotes, maxTransporters);
-
-        if (result == null)
-            return new AssignmentResponse("error", 0, Collections.emptyList(), Collections.emptyList());
 
         List<AssignmentResult> assignments = lanes.stream()
                 .sorted(Comparator.comparing(Lane::getId))
