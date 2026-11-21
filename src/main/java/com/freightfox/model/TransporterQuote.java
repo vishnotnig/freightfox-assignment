@@ -3,7 +3,7 @@ package com.freightfox.model;
 import jakarta.persistence.*;
 
 @Entity
-public class CostMatrix {
+public class TransporterQuote {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

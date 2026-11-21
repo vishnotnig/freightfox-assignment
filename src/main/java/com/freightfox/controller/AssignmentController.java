@@ -11,8 +11,6 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
-
 @RestController
 @RequestMapping("/api/v1/transporters")
 @Tag(name = "Transporter Assignment", description = "APIs for optimally assigning transporters to freight lanes")
@@ -34,6 +32,6 @@ public class AssignmentController {
     @Operation(summary = "Get optimized assignments", description = "Returns optimal transporter-to-lane assignments minimizing total cost within the given transporter limit")
     @PostMapping("/assignment")
     public ResponseEntity<AssignmentResponse> assign(@Valid @RequestBody AssignmentRequest request) {
-        return ResponseEntity.ok(assignmentService.optimize(request.getMaxTransporters()));
+        return ResponseEntity.ok(assignmentService.optimize(request.maxTransporters()));
     }
 }
